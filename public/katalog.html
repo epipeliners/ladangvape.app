@@ -1,15 +1,40 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Katalog</title>
+  <title>Katalog Ladang Vape</title>
+  <style>
+    .produk { border: 1px solid #ccc; padding: 10px; margin: 10px; }
+    .produk img { width: 150px; }
+  </style>
 </head>
 <body>
-  <h1>Daftar Produk</h1>
-  <ul>
-    <li>Liquid A</li>
-    <li>Liquid B</li>
-    <li>Pod Device</li>
-  </ul>
-  <a href="index.html">Kembali</a>
+  <h1>Katalog Produk</h1>
+  <div id="katalog"></div>
+
+  <script>
+    fetch("/api/katalog")
+  .then(res => res.json())
+  .then(data => {
+    const container = document.getElementById("katalog");
+    data.produk.forEach(p => {
+      if (p.stok > 0) {
+        const div = document.createElement("div");
+        div.className = "produk";
+        div.innerHTML = `
+          <h3>${p.flavor}</h3>
+          <img src="${p.image}" alt="${p.flavor}">
+          <p>${p.caption}</p>
+          <p><strong>Harga:</strong> ${p.price}k</p>
+          <p><strong>Stok:</strong> ${p.stok}</p>
+        `;
+        container.appendChild(div);
+      }
+    });
+  });
+    function tambahKeKeranjang(flavor, price) {
+      alert(`Ditambahkan: ${flavor} - ${price}k`);
+      // Nanti bisa disimpan ke localStorage atau dikirim ke backend
+    }
+  </script>
 </body>
 </html>
