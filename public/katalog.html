@@ -12,35 +12,32 @@
   <div id="katalog"></div>
 
   <script>
-  fetch("/api/katalog")
-    .then(res => res.json())
-    .then(data => {
-      const container = document.getElementById("katalog");
+    console.log("Memuat katalog..."); // DEBUG
 
-      data.produk.forEach(p => {
-        if (parseInt(p.stok) > 0) {
-          const div = document.createElement("div");
-          div.className = "produk";
-          div.innerHTML = `
-            <h3>${p.flavor}</h3>
-            <img src="${p.image}" alt="${p.flavor}" width="150">
-            <p>${p.caption}</p>
-            <p><strong>Harga:</strong> ${p.price}k</p>
-            <p><strong>Stok:</strong> ${p.stok}</p>
-            <button onclick="tambahKeKeranjang('${p.flavor}', ${p.price})">Tambah ke keranjang</button>
-          `;
-          container.appendChild(div);
-        }
+    fetch("/api/katalog")
+      .then(res => res.json())
+      .then(data => {
+        console.log("Data katalog:", data); // DEBUG
+
+        const container = document.getElementById("katalog");
+        data.produk.forEach(p => {
+          if (parseInt(p.stok) > 0) {
+            const div = document.createElement("div");
+            div.className = "produk";
+            div.innerHTML = `
+              <h3>${p.flavor}</h3>
+              <img src="${p.image}" alt="${p.flavor}">
+              <p>${p.caption}</p>
+              <p><strong>Harga:</strong> ${p.price}k</p>
+              <p><strong>Stok:</strong> ${p.stok}</p>
+            `;
+            container.appendChild(div);
+          }
+        });
+      })
+      .catch(err => {
+        console.error("Gagal ambil katalog:", err);
       });
-    })
-    .catch(err => {
-      console.error("Gagal ambil katalog:", err);
-    });
-
-  function tambahKeKeranjang(flavor, price) {
-    alert(`Ditambahkan: ${flavor} - ${price}k`);
-    // Nanti bisa simpan ke localStorage
-  }
-</script>
+  </script>
 </body>
 </html>
