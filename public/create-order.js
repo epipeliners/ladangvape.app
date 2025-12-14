@@ -13,4 +13,8 @@ function kirimPesanan() {
     alert("Gagal kirim pesanan.");
     console.error(err);
   });
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> dffd565443f7dd6c018e91a96861f8e216e7c558
