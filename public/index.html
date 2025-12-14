@@ -1,86 +1,17 @@
-<!doctype html>
+<!DOCTYPE html>
 <html>
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Mini App Shop</title>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/supabase.min.js"></script>
-  <style>body{font-family:Arial;padding:12px} .prod{border:1px solid #ddd;padding:8px;margin:8px 0}</style>
+  <title>Ladang Vape</title>
 </head>
 <body>
-  <h3>Katalog</h3>
-  <div id="list"></div>
-  <h3>Keranjang</h3>
-  <div id="cart"></div>
-  <button id="checkout">Kirim Pesanan ke Admin</button>
+  <h1>Selamat datang di Ladang Vape!</h1>
+  <nav>
+    <a href="katalog.html">Katalog</a> |
+    <a href="keranjang.html">Keranjang</a>
+  </nav>
+  <br>
+  <button onclick="kirimPesanan()">Kirim Pesanan ke Admin</button>
 
-<script>
-const SUPABASE_URL = 'https://sdtksbrkcihmbzyhzjab.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNkdGtzYnJrY2lobWJ6eWh6amFiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUwMzU4NzAsImV4cCI6MjA4MDYxMTg3MH0.b9RTRNpnAv7vcWDbBYLhy8umpk4FoXuacC_ufGTbaXk';
-const BACKEND_ORDER_URL = '/api/create-order'; // relatif ke domain Vercel
-const supabase = supabaseJs.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-let products = [];
-let cart = [];
-
-async function loadProducts(){
-  const { data } = await supabase.from('products').select('id,brand,item,sku,price,stok').order('id');
-  products = data || [];
-  renderProducts();
-}
-function renderProducts(){
-  const el = document.getElementById('list');
-  el.innerHTML = '';
-  products.forEach(p=>{
-    const div = document.createElement('div'); div.className='prod';
-    div.innerHTML = `<b>${p.brand} ${p.item}</b><div>SKU: ${p.sku} | Harga: ${p.price} | Stok: <span id="stok-${p.id}">${p.stok}</span></div>
-      <input type="number" id="qty-${p.id}" min="1" max="${p.stok}" value="1" style="width:60px"/>
-      <button onclick="addToCart(${p.id})">Tambah</button>`;
-    el.appendChild(div);
-  });
-}
-function addToCart(id){
-  const qty = parseInt(document.getElementById(`qty-${id}`).value||0);
-  if(!qty || qty <= 0) return alert('Masukkan qty valid');
-  const p = products.find(x=>x.id===id);
-  if(qty > p.stok) return alert('Stok tidak cukup');
-  const existing = cart.find(x=>x.product_id===id);
-  if(existing) existing.qty += qty; else cart.push({product_id:id, qty});
-  renderCart();
-}
-function renderCart(){
-  const el = document.getElementById('cart');
-  el.innerHTML = cart.map(c=>{
-    const p = products.find(x=>x.id===c.product_id);
-    return `<div>${p.brand} ${p.item} x${c.qty}</div>`;
-  }).join('') || '<i>Keranjang kosong</i>';
-}
-document.getElementById('checkout').addEventListener('click', async ()=>{
-  if(cart.length===0) return alert('Keranjang kosong');
-  const name = prompt('Nama pembeli');
-  const phone = prompt('Nomor WA');
-  if(!name || !phone) return alert('Nama dan nomor diperlukan');
-  const payload = { customer_name: name, channel: 'telegram', note: phone, items: cart };
-  const res = await fetch(BACKEND_ORDER_URL, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload) });
-  const data = await res.json();
-  if(data.ok){
-    alert('Pesanan terkirim. ID: ' + data.order_id);
-    cart = []; renderCart();
-  } else {
-    alert('Gagal: ' + (data.error || JSON.stringify(data)));
-  }
-});
-
-// realtime update stok
-supabase.channel('public:products').on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'products' }, payload=>{
-  const newRow = payload.new;
-  const el = document.getElementById(`stok-${newRow.id}`);
-  if(el) el.textContent = newRow.stok;
-  const idx = products.findIndex(p=>p.id===newRow.id);
-  if(idx>=0) products[idx].stok = newRow.stok;
-}).subscribe();
-
-loadProducts();
-</script>
+  <script src="create-order.js"></script>
 </body>
 </html>
