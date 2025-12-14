@@ -30,6 +30,7 @@
               <p>${p.caption}</p>
               <p><strong>Harga:</strong> ${p.price}k</p>
               <p><strong>Stok:</strong> ${p.stok}</p>
+              <button onclick="tambahKeKeranjang('${p.flavor}', ${p.price})">Tambah ke Keranjang</button>
             `;
             container.appendChild(div);
           }
@@ -38,6 +39,10 @@
       .catch(err => {
         console.error("Gagal ambil katalog:", err);
       });
+
+    function tambahKeKeranjang(flavor, price) {
+      alert(`Ditambahkan: ${flavor} - ${price}k`);
+    }
   </script>
 </body>
 </html>
